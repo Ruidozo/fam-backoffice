@@ -3,7 +3,7 @@ import { pt } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import { getOrders } from '../api'
+import { getOrders, getSettings } from '../api'
 import '../styles/calendar.css'
 
 const locales = {
@@ -24,9 +24,12 @@ function CalendarView() {
   const [events, setEvents] = useState([])
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [showModal, setShowModal] = useState(false)
+  const [settings, setSettings] = useState(null)
+  const [cutoffWarning, setCutoffWarning] = useState(null)
 
   useEffect(() => {
     loadOrders()
+    loadSettings()
   }, [])
 
   useEffect(() => {
@@ -42,6 +45,53 @@ function CalendarView() {
       }))
     setEvents(orderEvents)
   }, [orders])
+
+  useEffect(() => {
+    if (settings) {
+      calculateCutoffWarning()
+    }
+  }, [settings])
+
+  const loadSettings = async () => {
+    try {
+      const response = await getSettings()
+      setSettings(response.data)
+    } catch (error) {
+      console.error('Erro ao carregar definições:', error)
+    }
+  }
+
+  const calculateCutoffWarning = () => {
+    if (!settings) return
+
+    const now = new Date()
+    const currentDay = now.getDay() // 0 = Sunday, 1 = Monday, etc.
+    
+    // Calculate next cutoff date
+    const daysUntilCutoff = (settings.order_cutoff_day - currentDay + 7) % 7
+    const nextCutoff = new Date(now)
+    nextCutoff.setDate(now.getDate() + (daysUntilCutoff === 0 ? 7 : daysUntilCutoff))
+    nextCutoff.setHours(settings.order_cutoff_hour, settings.order_cutoff_minute, 0, 0)
+
+    // Calculate time remaining
+    const timeRemaining = nextCutoff - now
+    const hoursRemaining = Math.floor(timeRemaining / (1000 * 60 * 60))
+    const minutesRemaining = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60))
+
+    // Only show warning if cutoff is within 48 hours
+    if (hoursRemaining <= 48 && hoursRemaining >= 0) {
+      const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
+      setCutoffWarning({
+        day: dayNames[settings.order_cutoff_day],
+        time: `${String(settings.order_cutoff_hour).padStart(2, '0')}:${String(settings.order_cutoff_minute).padStart(2, '0')}`,
+        hours: hoursRemaining,
+        minutes: minutesRemaining,
+        isUrgent: hoursRemaining <= 24
+      })
+    } else {
+      setCutoffWarning(null)
+    }
+  }
 
   const loadOrders = async () => {
     try {
@@ -103,6 +153,25 @@ function CalendarView() {
 
   return (
     <div className="calendar-container">
+      {cutoffWarning && (
+        <div style={{
+          margin: '1rem',
+          padding: '1rem',
+          background: cutoffWarning.isUrgent ? '#fef3c7' : '#dbeafe',
+          border: `1px solid ${cutoffWarning.isUrgent ? '#fbbf24' : '#60a5fa'}`,
+          borderRadius: '0.375rem',
+          color: cutoffWarning.isUrgent ? '#92400e' : '#1e40af'
+        }}>
+          <strong>
+            {cutoffWarning.isUrgent ? 'URGENTE' : 'AVISO'}: Prazo para encomendas
+          </strong>
+          <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
+            As encomendas devem ser feitas até {cutoffWarning.day} às {cutoffWarning.time}.
+            {' '}Tempo restante: <strong>{cutoffWarning.hours}h {cutoffWarning.minutes}min</strong>
+          </p>
+        </div>
+      )}
+
       <Calendar
         localizer={localizer}
         events={events}

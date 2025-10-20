@@ -122,3 +122,14 @@ class OrderStatusHistory(Base):
 
     order = relationship('Order')
 
+
+class Settings(Base):
+    __tablename__ = 'settings'
+    id = Column(Integer, primary_key=True)
+    production_day = Column(Integer, default=2, nullable=False)  # 0=Monday, 1=Tuesday(default), etc.
+    order_cutoff_day = Column(Integer, default=6, nullable=False)  # 6=Saturday (default)
+    order_cutoff_hour = Column(Integer, default=23, nullable=False)  # 23:59 default
+    order_cutoff_minute = Column(Integer, default=59, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+

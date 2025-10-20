@@ -466,21 +466,24 @@ def generate_orders_from_plan(plan_id: int, month: int, year: int, db: Session =
     return orders
 
 
-@app.post('/recurring/plans/{plan_id}/create-monthly-payment', response_model=schemas.OrderRead)
-def create_monthly_payment(plan_id: int, month: int, year: int, db: Session = Depends(get_db)):
-    """
-    Create a monthly payment order for a subscription plan.
-    This is the "master" order that unlocks weekly deliveries when paid.
-    Example: POST /recurring/plans/1/create-monthly-payment?month=11&year=2025
-    """
-    plan = crud.get_recurring_plan(db, plan_id)
-    if not plan:
-        raise HTTPException(status_code=404, detail='Plan not found')
-    
-    order = crud.create_monthly_payment_order(db, plan_id, month, year)
-    if not order:
-        raise HTTPException(status_code=400, detail='Could not create monthly payment order. Check if plan is valid for this month or payment already exists.')
     
     return order
+
+
+# --- Settings ---
+@app.get('/settings', response_model=schemas.SettingsRead)
+def get_settings(db: Session = Depends(get_db)):
+    """Get system settings"""
+    return crud.get_settings(db)
+
+
+@app.put('/settings', response_model=schemas.SettingsUpdate)
+def update_settings(
+    settings_update: schemas.SettingsUpdate,
+    current_user: models.User = Depends(auth.require_role([models.UserRole.admin])),
+    db: Session = Depends(get_db)
+):
+    """Update system settings (admin only)"""
+    return crud.update_settings(db, settings_update)
 
 

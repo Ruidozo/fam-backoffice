@@ -104,6 +104,26 @@ def migrate():
                 ADD COLUMN IF NOT EXISTS is_monthly_payment BOOLEAN DEFAULT FALSE NOT NULL;
             """))
             
+            # Create settings table
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS settings (
+                    id SERIAL PRIMARY KEY,
+                    production_day INTEGER NOT NULL DEFAULT 2,
+                    order_cutoff_day INTEGER NOT NULL DEFAULT 6,
+                    order_cutoff_hour INTEGER NOT NULL DEFAULT 23,
+                    order_cutoff_minute INTEGER NOT NULL DEFAULT 59,
+                    created_at TIMESTAMPTZ DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ DEFAULT NOW()
+                );
+            """))
+            
+            # Insert default settings if table is empty
+            conn.execute(text("""
+                INSERT INTO settings (production_day, order_cutoff_day, order_cutoff_hour, order_cutoff_minute)
+                SELECT 2, 6, 23, 59
+                WHERE NOT EXISTS (SELECT 1 FROM settings LIMIT 1);
+            """))
+            
             # Note: Enum migration was done manually via SQL
             # The orderstatus enum was recreated with only: encomendado, pago, preparing, delivered
             

@@ -175,3 +175,24 @@ class RecurringPlanRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# Settings
+class SettingsUpdate(BaseModel):
+    production_day: Optional[int] = Field(None, ge=0, le=6)  # 0=Monday to 6=Sunday
+    order_cutoff_day: Optional[int] = Field(None, ge=0, le=6)
+    order_cutoff_hour: Optional[int] = Field(None, ge=0, le=23)
+    order_cutoff_minute: Optional[int] = Field(None, ge=0, le=59)
+
+
+class SettingsRead(BaseModel):
+    id: int
+    production_day: int
+    order_cutoff_day: int
+    order_cutoff_hour: int
+    order_cutoff_minute: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

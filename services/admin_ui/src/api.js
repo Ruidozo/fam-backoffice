@@ -94,5 +94,9 @@ export const updateRecurringPlan = (id, data) => api.put(`/recurring/plans/${id}
 export const deleteRecurringPlan = (id) => api.delete(`/recurring/plans/${id}`)
 export const createMonthlyPayment = (planId, month, year) => api.post(`/recurring/plans/${planId}/create-monthly-payment`, null, { params: { month, year } })
 
+// Settings
+export const getSettings = () => api.get('/settings')
+export const updateSettings = (data) => api.put('/settings', data)
+
 export { authAPI as api }
 export default api

@@ -617,3 +617,35 @@ def update_last_login(db: Session, user_id: int):
         db.refresh(db_user)
     return db_user
 
+
+# --- Settings ---
+def get_settings(db: Session):
+    """Get settings (singleton pattern - only one row)"""
+    settings = db.query(models.Settings).first()
+    if not settings:
+        # Create default settings if not exists
+        settings = models.Settings(
+            production_day=2,  # Tuesday
+            order_cutoff_day=6,  # Saturday
+            order_cutoff_hour=23,
+            order_cutoff_minute=59
+        )
+        db.add(settings)
+        db.commit()
+        db.refresh(settings)
+    return settings
+
+
+def update_settings(db: Session, settings_update: schemas.SettingsUpdate):
+    """Update settings"""
+    settings = get_settings(db)
+    
+    update_data = settings_update.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        if value is not None:
+            setattr(settings, key, value)
+    
+    db.commit()
+    db.refresh(settings)
+    return settings
+
