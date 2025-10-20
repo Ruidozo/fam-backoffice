@@ -36,7 +36,7 @@ export default function LoginPage() {
     <div className="login-page">
       <div className="login-container">
         <div className="login-header">
-          <h1>FAM</h1>
+          <img src="/fam_black.png" alt="FAM" className="login-logo" />
           <p>Sistema de Gestão</p>
         </div>
         

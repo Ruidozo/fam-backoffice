@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { getSettings, updateSettings } from '../api'
+import { createUser, deleteUser, getSettings, getUsers, updateSettings, updateUser } from '../api'
+import '../styles/users.css'
 
 const DAYS_OF_WEEK = [
   { value: 0, label: 'Segunda-feira' },
@@ -12,6 +13,7 @@ const DAYS_OF_WEEK = [
 ]
 
 function SettingsPage() {
+  const [activeTab, setActiveTab] = useState('system')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [settings, setSettings] = useState(null)
@@ -22,8 +24,22 @@ function SettingsPage() {
     order_cutoff_minute: 59
   })
 
+  // Users state
+  const [users, setUsers] = useState([])
+  const [showUserModal, setShowUserModal] = useState(false)
+  const [editingUser, setEditingUser] = useState(null)
+  const [userFormData, setUserFormData] = useState({
+    username: '',
+    email: '',
+    full_name: '',
+    password: '',
+    role: 'operator',
+    is_active: true,
+  })
+
   useEffect(() => {
     loadSettings()
+    fetchUsers()
   }, [])
 
   const loadSettings = async () => {
@@ -41,6 +57,15 @@ function SettingsPage() {
       alert('Erro ao carregar definições')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchUsers = async () => {
+    try {
+      const response = await getUsers()
+      setUsers(response.data)
+    } catch (error) {
+      console.error('Erro ao carregar utilizadores:', error)
     }
   }
 
@@ -68,6 +93,82 @@ function SettingsPage() {
     }
   }
 
+  // User management functions
+  const handleUserSubmit = async (e) => {
+    e.preventDefault()
+    
+    try {
+      if (editingUser) {
+        const updateData = { ...userFormData }
+        if (!updateData.password) {
+          delete updateData.password
+        }
+        await updateUser(editingUser.id, updateData)
+      } else {
+        await createUser(userFormData)
+      }
+      
+      setShowUserModal(false)
+      setEditingUser(null)
+      resetUserForm()
+      fetchUsers()
+    } catch (error) {
+      console.error('Erro ao guardar utilizador:', error)
+      alert(error.response?.data?.detail || 'Erro ao guardar utilizador')
+    }
+  }
+
+  const handleEditUser = (user) => {
+    setEditingUser(user)
+    setUserFormData({
+      username: user.username,
+      email: user.email,
+      full_name: user.full_name || '',
+      password: '',
+      role: user.role,
+      is_active: user.is_active,
+    })
+    setShowUserModal(true)
+  }
+
+  const handleDeleteUser = async (userId) => {
+    if (!confirm('Tem certeza que deseja eliminar este utilizador?')) return
+
+    try {
+      await deleteUser(userId)
+      fetchUsers()
+    } catch (error) {
+      console.error('Erro ao eliminar utilizador:', error)
+      alert(error.response?.data?.detail || 'Erro ao eliminar utilizador')
+    }
+  }
+
+  const resetUserForm = () => {
+    setUserFormData({
+      username: '',
+      email: '',
+      full_name: '',
+      password: '',
+      role: 'operator',
+      is_active: true,
+    })
+  }
+
+  const openCreateUserModal = () => {
+    resetUserForm()
+    setEditingUser(null)
+    setShowUserModal(true)
+  }
+
+  const getRoleName = (role) => {
+    const roles = {
+      admin: 'Administrador',
+      manager: 'Gestor',
+      operator: 'Operador',
+    }
+    return roles[role] || role
+  }
+
   if (loading) {
     return <div className="loading">A carregar...</div>
   }
@@ -75,10 +176,55 @@ function SettingsPage() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h2>Definições do Sistema</h2>
+        <h2>Definições</h2>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ maxWidth: '600px' }}>
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        gap: '0.5rem',
+        borderBottom: '2px solid #e5e7eb',
+        marginBottom: '1.5rem'
+      }}>
+        <button
+          type="button"
+          onClick={() => setActiveTab('system')}
+          style={{
+            padding: '0.75rem 1.5rem',
+            background: 'none',
+            border: 'none',
+            borderBottom: activeTab === 'system' ? '2px solid #2563eb' : '2px solid transparent',
+            color: activeTab === 'system' ? '#2563eb' : '#6b7280',
+            fontWeight: activeTab === 'system' ? '600' : '400',
+            cursor: 'pointer',
+            marginBottom: '-2px',
+            transition: 'all 0.2s'
+          }}
+        >
+          Sistema
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('users')}
+          style={{
+            padding: '0.75rem 1.5rem',
+            background: 'none',
+            border: 'none',
+            borderBottom: activeTab === 'users' ? '2px solid #2563eb' : '2px solid transparent',
+            color: activeTab === 'users' ? '#2563eb' : '#6b7280',
+            fontWeight: activeTab === 'users' ? '600' : '400',
+            cursor: 'pointer',
+            marginBottom: '-2px',
+            transition: 'all 0.2s'
+          }}
+        >
+          Utilizadores
+        </button>
+      </div>
+
+      {/* System Settings Tab */}
+      {activeTab === 'system' && (
+        <form onSubmit={handleSubmit} style={{ maxWidth: '600px' }}>
         <div style={{
           background: 'white',
           padding: '1.5rem',
@@ -189,20 +335,177 @@ function SettingsPage() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'A guardar...' : 'Guardar Definições'}
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={loadSettings}
-            disabled={saving}
-          >
-            Cancelar
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? 'A guardar...' : 'Guardar Definições'}
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={loadSettings}
+              disabled={saving}
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Users Tab */}
+      {activeTab === 'users' && (
+        <div className="users-page">
+          <div className="page-header" style={{ marginBottom: '1.5rem' }}>
+            <h3 style={{ margin: 0 }}>Gestão de Utilizadores</h3>
+            <button className="btn btn-primary" onClick={openCreateUserModal}>
+              + Novo Utilizador
+            </button>
+          </div>
+
+          <div className="users-table-container">
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>Utilizador</th>
+                  <th>Nome Completo</th>
+                  <th>Email</th>
+                  <th>Função</th>
+                  <th>Estado</th>
+                  <th>Último Login</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.username}</td>
+                    <td>{user.full_name || '-'}</td>
+                    <td>{user.email}</td>
+                    <td>
+                      <span className={`role-badge role-${user.role}`}>
+                        {getRoleName(user.role)}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`status-badge ${user.is_active ? 'active' : 'inactive'}`}>
+                        {user.is_active ? 'Ativo' : 'Inativo'}
+                      </span>
+                    </td>
+                    <td>
+                      {user.last_login 
+                        ? new Date(user.last_login).toLocaleString('pt-PT')
+                        : 'Nunca'}
+                    </td>
+                    <td className="actions">
+                      <button 
+                        className="btn btn-small btn-edit" 
+                        onClick={() => handleEditUser(user)}
+                      >
+                        Editar
+                      </button>
+                      <button 
+                        className="btn btn-small btn-delete" 
+                        onClick={() => handleDeleteUser(user.id)}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* User Modal */}
+          {showUserModal && (
+            <div className="modal-overlay" onClick={() => setShowUserModal(false)}>
+              <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2>{editingUser ? 'Editar Utilizador' : 'Novo Utilizador'}</h2>
+                  <button className="close-btn" onClick={() => setShowUserModal(false)}>×</button>
+                </div>
+                
+                <form onSubmit={handleUserSubmit}>
+                  <div className="form-group">
+                    <label>Utilizador *</label>
+                    <input
+                      type="text"
+                      value={userFormData.username}
+                      onChange={(e) => setUserFormData({ ...userFormData, username: e.target.value })}
+                      required
+                      disabled={!!editingUser}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Email *</label>
+                    <input
+                      type="email"
+                      value={userFormData.email}
+                      onChange={(e) => setUserFormData({ ...userFormData, email: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Nome Completo</label>
+                    <input
+                      type="text"
+                      value={userFormData.full_name}
+                      onChange={(e) => setUserFormData({ ...userFormData, full_name: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Senha {editingUser ? '(deixe em branco para manter)' : '*'}</label>
+                    <input
+                      type="password"
+                      value={userFormData.password}
+                      onChange={(e) => setUserFormData({ ...userFormData, password: e.target.value })}
+                      required={!editingUser}
+                      minLength={6}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Função *</label>
+                    <select
+                      value={userFormData.role}
+                      onChange={(e) => setUserFormData({ ...userFormData, role: e.target.value })}
+                      required
+                    >
+                      <option value="operator">Operador</option>
+                      <option value="manager">Gestor</option>
+                      <option value="admin">Administrador</option>
+                    </select>
+                  </div>
+
+                  {editingUser && (
+                    <div className="form-group">
+                      <label className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={userFormData.is_active}
+                          onChange={(e) => setUserFormData({ ...userFormData, is_active: e.target.checked })}
+                        />
+                        Utilizador Ativo
+                      </label>
+                    </div>
+                  )}
+
+                  <div className="modal-footer">
+                    <button type="button" className="btn btn-secondary" onClick={() => setShowUserModal(false)}>
+                      Cancelar
+                    </button>
+                    <button type="submit" className="btn btn-primary">
+                      {editingUser ? 'Atualizar' : 'Criar'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
-      </form>
+      )}
     </div>
   )
 }

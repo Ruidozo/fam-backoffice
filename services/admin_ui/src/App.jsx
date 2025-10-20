@@ -10,7 +10,6 @@ import OrdersPage from './pages/OrdersPage'
 import ProductionView from './pages/ProductionView'
 import ProductsPage from './pages/ProductsPage'
 import SettingsPage from './pages/SettingsPage'
-import UsersPage from './pages/UsersPage'
 
 // Protected route wrapper
 function ProtectedRoute({ children, adminOnly = false }) {
@@ -50,10 +49,7 @@ function AppLayout() {
           <li><Link to="/customers">Clientes</Link></li>
           <li><Link to="/products">Produtos</Link></li>
           {user?.role === 'admin' && (
-            <>
-              <li><Link to="/users">Utilizadores</Link></li>
-              <li><Link to="/settings">Definições</Link></li>
-            </>
+            <li><Link to="/settings">Definições</Link></li>
           )}
         </ul>
         <div className="nav-user">
@@ -71,14 +67,6 @@ function AppLayout() {
           <Route path="/production" element={<ProductionView />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/products" element={<ProductsPage />} />
-          <Route 
-            path="/users" 
-            element={
-              <ProtectedRoute adminOnly>
-                <UsersPage />
-              </ProtectedRoute>
-            } 
-          />
           <Route 
             path="/settings" 
             element={
