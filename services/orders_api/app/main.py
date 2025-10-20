@@ -265,8 +265,10 @@ def update_order_status(order_id: int, payload: schemas.OrderStatusUpdate, db: S
     status = payload.status
     # Validate against enum values
     allowed = [s.value for s in models.OrderStatus]
+    print(f"DEBUG: Received status='{status}', allowed={allowed}")
     if status not in allowed:
-        raise HTTPException(status_code=400, detail='Invalid status')
+        print(f"DEBUG: Status '{status}' not in allowed values!")
+        raise HTTPException(status_code=400, detail=f'Invalid status: {status}. Allowed: {allowed}')
     order = crud.update_order_status(db, order_id, status)
     if not order:
         raise HTTPException(status_code=404, detail='Order not found')
