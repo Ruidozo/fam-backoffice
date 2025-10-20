@@ -11,6 +11,7 @@ class CustomerCreate(BaseModel):
     phone: Optional[str] = None
     address: Optional[str] = None
     pickup_location: Optional[str] = None
+    is_subscription: bool = False
 
 class CustomerRead(CustomerCreate):
     id: int

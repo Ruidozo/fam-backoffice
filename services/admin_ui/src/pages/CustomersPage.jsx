@@ -11,7 +11,8 @@ function CustomersPage() {
     email: '',
     phone: '',
     address: '',
-    pickup_location: ''
+    pickup_location: '',
+    is_subscription: false
   })
 
   useEffect(() => {
@@ -40,7 +41,7 @@ function CustomersPage() {
       }
       setShowModal(false)
       setEditingCustomer(null)
-  setFormData({ name: '', email: '', phone: '', address: '', pickup_location: '' })
+  setFormData({ name: '', email: '', phone: '', address: '', pickup_location: '', is_subscription: false })
       loadCustomers()
     } catch (error) {
       console.error('Erro ao salvar cliente:', error)
@@ -55,7 +56,8 @@ function CustomersPage() {
       email: customer.email || '',
       phone: customer.phone || '',
       address: customer.address || '',
-      pickup_location: customer.pickup_location || ''
+      pickup_location: customer.pickup_location || '',
+      is_subscription: customer.is_subscription || false
     })
     setShowModal(true)
   }
@@ -74,7 +76,7 @@ function CustomersPage() {
 
   const handleAdd = () => {
     setEditingCustomer(null)
-  setFormData({ name: '', email: '', phone: '', address: '', pickup_location: '' })
+  setFormData({ name: '', email: '', phone: '', address: '', pickup_location: '', is_subscription: false })
     setShowModal(true)
   }
 
@@ -100,13 +102,14 @@ function CustomersPage() {
               <th>Telefone</th>
               <th>Morada</th>
               <th>Local de Recolha</th>
+              <th>Subscrição</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
             {customers.length === 0 ? (
               <tr>
-                <td colSpan="5" className="empty-state">
+                <td colSpan="7" className="empty-state">
                   Nenhum cliente cadastrado
                 </td>
               </tr>
@@ -118,6 +121,13 @@ function CustomersPage() {
                   <td>{customer.phone || '-'}</td>
                   <td>{customer.address || '-'}</td>
                   <td>{customer.pickup_location || '-'}</td>
+                  <td>
+                    {customer.is_subscription ? (
+                      <span className="status-badge status-delivered">✓ Mensal</span>
+                    ) : (
+                      <span className="status-badge status-pending">Avulso</span>
+                    )}
+                  </td>
                   <td>
                     <div className="table-actions">
                       <button
@@ -195,6 +205,16 @@ function CustomersPage() {
                     value={formData.pickup_location}
                     onChange={(e) => setFormData({ ...formData, pickup_location: e.target.value })}
                   />
+                </div>
+                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={formData.is_subscription}
+                      onChange={(e) => setFormData({ ...formData, is_subscription: e.target.checked })}
+                    />
+                    <span>Subscrição Mensal (pagamento mensal, entregas semanais)</span>
+                  </label>
                 </div>
               </div>
               <div className="modal-actions">

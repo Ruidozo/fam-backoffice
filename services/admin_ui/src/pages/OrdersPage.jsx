@@ -229,10 +229,9 @@ function OrdersPage() {
 
   const getStatusLabel = (status) => {
     const labels = {
-      pending: 'Pendente',
-      confirmed: 'Confirmado',
+      encomendado: 'Encomendado',
+      pago: 'Pago',
       preparing: 'Em Preparação',
-      dispatched: 'Expedido',
       delivered: 'Entregue'
     }
     return labels[status] || status
@@ -332,10 +331,9 @@ function OrdersPage() {
                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
                         style={{ border: 'none', cursor: 'pointer' }}
                       >
-                        <option value="pending">Pendente</option>
-                        <option value="confirmed">Confirmado</option>
+                        <option value="encomendado">Encomendado</option>
+                        <option value="pago">Pago</option>
                         <option value="preparing">Em Preparação</option>
-                        <option value="dispatched">Expedido</option>
                         <option value="delivered">Entregue</option>
                       </select>
                     </td>

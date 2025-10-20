@@ -5,10 +5,9 @@ import { getOrders, updateOrderStatus } from '../api'
 import '../styles/kanban.css'
 
 const COLUMNS = [
-  { id: 'pending', label: 'Pendente', color: '#fbbf24' },
-  { id: 'confirmed', label: 'Confirmado', color: '#60a5fa' },
+  { id: 'encomendado', label: 'Encomendado', color: '#fbbf24' },
+  { id: 'pago', label: 'Pago', color: '#60a5fa' },
   { id: 'preparing', label: 'Em Preparação', color: '#a78bfa' },
-  { id: 'dispatched', label: 'Expedido', color: '#fb923c' },
   { id: 'delivered', label: 'Entregue', color: '#4ade80' }
 ]
 

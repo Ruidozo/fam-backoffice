@@ -90,6 +90,19 @@ def migrate():
                 );
             """))
             
+            # Add subscription field to customers
+            conn.execute(text("""
+                ALTER TABLE customers 
+                ADD COLUMN IF NOT EXISTS is_subscription BOOLEAN DEFAULT FALSE NOT NULL;
+            """))
+            
+            # Update existing order statuses to new enum values
+            conn.execute(text("""
+                UPDATE orders SET status = 'encomendado' WHERE status = 'pending';
+                UPDATE orders SET status = 'pago' WHERE status = 'confirmed';
+                UPDATE orders SET status = 'delivered' WHERE status = 'dispatched';
+            """))
+            
             trans.commit()
             print("✅ Migration completed successfully!")
             

@@ -14,11 +14,10 @@ class UserRole(str, enum.Enum):
 
 
 class OrderStatus(str, enum.Enum):
-    pending = 'pending'
-    confirmed = 'confirmed'
-    preparing = 'preparing'
-    dispatched = 'dispatched'
-    delivered = 'delivered'
+    encomendado = 'encomendado'  # Ordered
+    pago = 'pago'  # Paid
+    preparing = 'preparing'  # Preparing
+    delivered = 'delivered'  # Delivered
 
 
 class User(Base):
@@ -42,6 +41,7 @@ class Customer(Base):
     phone = Column(String, nullable=True)
     address = Column(String, nullable=True)
     pickup_location = Column(String, nullable=True)  # local de recolha preferido
+    is_subscription = Column(Boolean, default=False, nullable=False)  # mensal subscription
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     orders = relationship('Order', back_populates='customer')
@@ -67,7 +67,7 @@ class Order(Base):
     id = Column(Integer, primary_key=True)
     customer_id = Column(Integer, ForeignKey('customers.id'), nullable=False)
     delivery_date = Column(Date, nullable=True)
-    status = Column(Enum(OrderStatus), default=OrderStatus.pending, nullable=False)
+    status = Column(Enum(OrderStatus), default=OrderStatus.encomendado, nullable=False)
     total = Column(Numeric(12, 2), default=0)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
