@@ -96,11 +96,22 @@ def migrate():
                 ADD COLUMN IF NOT EXISTS is_subscription BOOLEAN DEFAULT FALSE NOT NULL;
             """))
             
+            # Add new enum values to PostgreSQL orderstatus type
+            conn.execute(text("ALTER TYPE orderstatus ADD VALUE IF NOT EXISTS 'encomendado';"))
+            conn.execute(text("ALTER TYPE orderstatus ADD VALUE IF NOT EXISTS 'pago';"))
+            
             # Update existing order statuses to new enum values
             conn.execute(text("""
                 UPDATE orders SET status = 'encomendado' WHERE status = 'pending';
                 UPDATE orders SET status = 'pago' WHERE status = 'confirmed';
                 UPDATE orders SET status = 'delivered' WHERE status = 'dispatched';
+            """))
+            
+            # Also update order_status_history table
+            conn.execute(text("""
+                UPDATE order_status_history SET status = 'encomendado' WHERE status = 'pending';
+                UPDATE order_status_history SET status = 'pago' WHERE status = 'confirmed';
+                UPDATE order_status_history SET status = 'delivered' WHERE status = 'dispatched';
             """))
             
             trans.commit()
