@@ -416,26 +416,23 @@ def generate_monthly_orders_from_plan(db: Session, plan_id: int, month: int, yea
         if existing:
             continue  # Skip if already generated
         
-        # Calculate total
-        total = sum(
-            (db.query(models.Product).get(item.product_id).unit_price or 0) * item.quantity
-            for item in plan_items
-        )
+        # Weekly deliveries have total = 0 (already paid in monthly payment)
+        # Items keep their prices for production reference
         
         # Create order
         order = models.Order(
             customer_id=plan.customer_id,
             delivery_date=delivery_date,
             status=models.OrderStatus.pago,  # Subscription orders are already paid
-            total=total,
+            total=0,  # No cost - already covered by monthly payment
             recurring_plan_id=plan_id,
             is_auto_generated=True,
-            notes=f"Gerado automaticamente da subscrição mensal"
+            notes=f"Entrega semanal - Pagamento coberto pelo plano mensal"
         )
         db.add(order)
         db.flush()  # Get order ID
         
-        # Add order items
+        # Add order items (with prices for production reference)
         for plan_item in plan_items:
             product = db.query(models.Product).get(plan_item.product_id)
             order_item = models.OrderItem(
