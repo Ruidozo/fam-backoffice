@@ -204,6 +204,14 @@ tbody tr:hover { background: var(--wheat-50); }
   overflow-y: auto;
 }
 
+.modal-large {
+  max-width: 800px;
+}
+
+.modal-body {
+  margin-bottom: 1.5rem;
+}
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -263,4 +271,25 @@ tbody tr:hover { background: var(--wheat-50); }
 .table-actions {
   display: flex;
   gap: 0.5rem;
+}
+
+/* Info Box */
+.info-box {
+  background: #e3f2fd;
+  border-left: 4px solid #2196f3;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.info-box p {
+  margin: 0.5rem 0;
+}
+
+.info-box p:first-child {
+  margin-top: 0;
+}
+
+.info-box p:last-child {
+  margin-bottom: 0;
 }

@@ -5,7 +5,9 @@ function CustomersPage() {
   const [customers, setCustomers] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [showPlanModal, setShowPlanModal] = useState(false)
   const [editingCustomer, setEditingCustomer] = useState(null)
+  const [managingPlanCustomer, setManagingPlanCustomer] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -130,6 +132,18 @@ function CustomersPage() {
                   </td>
                   <td>
                     <div className="table-actions">
+                      {customer.is_subscription && (
+                        <button
+                          className="btn btn-primary btn-small"
+                          onClick={() => {
+                            setManagingPlanCustomer(customer)
+                            setShowPlanModal(true)
+                          }}
+                          title="Gerir plano de subscrição"
+                        >
+                          📋 Plano
+                        </button>
+                      )}
                       <button
                         className="btn btn-secondary btn-small"
                         onClick={() => handleEdit(customer)}
@@ -226,6 +240,49 @@ function CustomersPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showPlanModal && managingPlanCustomer && (
+        <div className="modal-overlay" onClick={() => setShowPlanModal(false)}>
+          <div className="modal modal-large" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>📋 Plano de Subscrição - {managingPlanCustomer.name}</h3>
+              <button
+                className="btn btn-secondary btn-small"
+                onClick={() => setShowPlanModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="info-box">
+                <p><strong>Cliente:</strong> {managingPlanCustomer.name}</p>
+                <p><strong>Tipo:</strong> Subscrição Mensal</p>
+                <p style={{ color: '#666', fontSize: '0.9em', marginTop: '8px' }}>
+                  💡 O plano de subscrição define que produtos o cliente recebe semanalmente.
+                  No início de cada mês, crie uma encomenda de pagamento mensal.
+                  Quando o cliente pagar, o sistema gera automaticamente as entregas semanais.
+                </p>
+              </div>
+
+              <div style={{ marginTop: '20px', padding: '20px', background: '#f5f5f5', borderRadius: '8px', textAlign: 'center' }}>
+                <p style={{ color: '#666', marginBottom: '16px' }}>
+                  🚧 Interface de gestão de planos em desenvolvimento
+                </p>
+                <p style={{ fontSize: '0.9em', color: '#888' }}>
+                  Por enquanto, utilize a API diretamente:<br/>
+                  POST /recurring/plans - Criar plano<br/>
+                  POST /recurring/plans/{'{'}id{'}'}/create-monthly-payment - Criar pagamento mensal
+                </p>
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setShowPlanModal(false)}>
+                Fechar
+              </button>
+            </div>
           </div>
         </div>
       )}
