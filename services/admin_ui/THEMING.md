@@ -1,6 +1,6 @@
-# 🎨 Theming the FAM Admin UI
+# Admin UI Theming Guide
 
-This UI was set up for easy theming. Here’s how to change the look fast.
+This document explains the theming system used in the Admin UI.
 
 ## 1) Colors (CSS variables)
 Edit `src/index.css` at the top:

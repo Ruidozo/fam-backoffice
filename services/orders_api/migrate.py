@@ -108,11 +108,11 @@ def migrate():
             # The orderstatus enum was recreated with only: encomendado, pago, preparing, delivered
             
             trans.commit()
-            print("✅ Migration completed successfully!")
+            print("[SUCCESS] Migration completed successfully!")
             
         except Exception as e:
             trans.rollback()
-            print(f"❌ Migration failed: {e}")
+            print(f"[ERROR] Migration failed: {e}")
             raise
 
 if __name__ == "__main__":

@@ -394,7 +394,7 @@ This project is proprietary software. All rights reserved.
 
 For support and questions:
 - Open an issue on GitHub
-- Contact: [your-email@example.com]
+- Contact: [ruimcar@gmail.com]
 
 ## Acknowledgments
 

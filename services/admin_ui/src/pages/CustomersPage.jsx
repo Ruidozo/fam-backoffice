@@ -281,7 +281,7 @@ function CustomersPage() {
                           onClick={() => handleOpenPlanModal(customer)}
                           title="Gerir plano de subscrição"
                         >
-                          📋 Plano
+                          Plano
                         </button>
                       )}
                       <button
@@ -388,7 +388,7 @@ function CustomersPage() {
         <div className="modal-overlay" onClick={() => setShowPlanModal(false)}>
           <div className="modal modal-large" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>📋 Plano de Subscrição - {managingPlanCustomer.name}</h3>
+              <h3>Plano de Subscrição - {managingPlanCustomer.name}</h3>
               <button
                 className="btn btn-secondary btn-small"
                 onClick={() => setShowPlanModal(false)}
@@ -520,7 +520,7 @@ function CustomersPage() {
                       className="btn btn-primary"
                       onClick={handleGeneratePayment}
                     >
-                      🎯 Gerar Encomenda de Pagamento
+                      Gerar Encomenda de Pagamento
                     </button>
                   </div>
                 )}

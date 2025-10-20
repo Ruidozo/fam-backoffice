@@ -79,7 +79,7 @@ function DashboardPage() {
       {/* KPI Cards */}
       <div className="kpi-grid">
         <div className="kpi-card">
-          <div className="kpi-icon">📦</div>
+          <div className="kpi-icon">Orders</div>
           <div className="kpi-content">
             <div className="kpi-label">Total de Encomendas</div>
             <div className="kpi-value">{stats.total_orders}</div>
@@ -87,7 +87,7 @@ function DashboardPage() {
         </div>
 
         <div className="kpi-card">
-          <div className="kpi-icon">📊</div>
+          <div className="kpi-icon">Units</div>
           <div className="kpi-content">
             <div className="kpi-label">Total de Unidades</div>
             <div className="kpi-value">{stats.total_units.toLocaleString()}</div>
@@ -95,7 +95,7 @@ function DashboardPage() {
         </div>
 
         <div className="kpi-card">
-          <div className="kpi-icon">💰</div>
+          <div className="kpi-icon">Revenue</div>
           <div className="kpi-content">
             <div className="kpi-label">Receita Total</div>
             <div className="kpi-value">€{stats.total_revenue.toFixed(2)}</div>
@@ -103,7 +103,7 @@ function DashboardPage() {
         </div>
 
         <div className="kpi-card">
-          <div className="kpi-icon">📈</div>
+          <div className="kpi-icon">Avg</div>
           <div className="kpi-content">
             <div className="kpi-label">Ticket Médio</div>
             <div className="kpi-value">

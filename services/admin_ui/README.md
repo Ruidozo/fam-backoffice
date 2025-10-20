@@ -2,7 +2,7 @@
 
 Modern React-based admin interface for managing customers, products, and orders.
 
-## 🚀 Features
+## Features
 
 - **Customer Management**: Create, edit, view, and delete customers
 - **Product Management**: Manage product catalog with SKU, pricing, cost, and status
@@ -14,7 +14,7 @@ Modern React-based admin interface for managing customers, products, and orders.
 - **Responsive Design**: Clean, bakery-themed interface
 - **Real-time Updates**: Instant feedback on all operations
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **React 18**: Modern React with hooks
 - **Vite**: Fast build tool and dev server
@@ -23,7 +23,7 @@ Modern React-based admin interface for managing customers, products, and orders.
 - **date-fns**: Date formatting utilities
 - **Nginx**: Production web server
 
-## 📋 Architecture
+## Architecture
 
 The application uses a multi-stage Docker build:
 1. **Build stage**: Compiles React app using Node.js 20
@@ -31,13 +31,13 @@ The application uses a multi-stage Docker build:
 
 API calls are proxied through Nginx to the FastAPI backend, avoiding CORS issues.
 
-## 🔌 API Integration
+## API Integration
 
 The UI connects to the Orders API at `/api/*`, which is proxied to `http://orders_api:8000`.
 
 All CRUD operations are handled through the centralized `api.js` module.
 
-## 🎨 Interface
+## Interface
 
 ### Navigation
 - **Encomendas** (Orders): Main dashboard for order management
@@ -50,7 +50,7 @@ All CRUD operations are handled through the centralized `api.js` module.
 3. Review total → Submit order
 4. Track status → Update through pipeline
 
-## 📱 Usage
+## Usage
 
 Access the interface at **http://localhost:3000** after starting the Docker stack.
 
@@ -71,7 +71,7 @@ Click the status dropdown directly in the orders table to update:
 - **Expedido**: Out for delivery
 - **Entregue**: Delivered to customer
 
-## 🔧 Development
+## Development
 
 To modify the UI:
 
@@ -95,12 +95,9 @@ src/
     └── ProductsPage.jsx
 ```
 
-## 🎯 Future Enhancements
+- Real-time notifications
+- Better reports and analytics
 
-Planned features from Fase 1:
-- Calendar view of orders by delivery date
-- Kanban board for order status
-- Production needs calculation
-- Alerts for orders due soon
-- CSV export functionality
-- Advanced filtering (date range, etc.)
+## Future Enhancements
+
+Planned improvements:

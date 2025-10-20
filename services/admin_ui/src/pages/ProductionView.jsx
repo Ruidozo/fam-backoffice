@@ -121,7 +121,7 @@ function ProductionView() {
       </div>
 
       <div style={{ marginTop: '2rem', padding: '1rem', background: 'var(--gray-50)', borderRadius: '0.5rem' }}>
-        <h3 style={{ marginBottom: '0.5rem', fontSize: '1rem' }}>💡 Dica</h3>
+        <h3 style={{ marginBottom: '0.5rem', fontSize: '1rem' }}>Dica</h3>
         <p style={{ margin: 0, color: 'var(--gray-700)', fontSize: '0.875rem' }}>
           Selecione a data de entrega para ver as necessidades agregadas por produto. Ative o arredondamento para aplicar batches mínimos por produto.
         </p>

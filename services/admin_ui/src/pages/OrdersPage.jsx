@@ -260,7 +260,7 @@ function OrdersPage() {
           borderRadius: '0.375rem',
           color: '#92400e'
         }}>
-          <strong>⚠️ {urgentOrders.length} encomenda{urgentOrders.length > 1 ? 's' : ''} urgente{urgentOrders.length > 1 ? 's' : ''}!</strong>
+          <strong>URGENTE: {urgentOrders.length} encomenda{urgentOrders.length > 1 ? 's' : ''} urgente{urgentOrders.length > 1 ? 's' : ''}!</strong>
           {' '}Para entrega nas próximas 24 horas.
         </div>
       )}
@@ -320,15 +320,15 @@ function OrdersPage() {
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                         <span>#{order.id}</span>
-                        {isUrgent && <span style={{ fontSize: '1.2rem' }}>🔥</span>}
+                        {isUrgent && <span style={{ fontSize: '1.2rem' }}>!</span>}
                         {order.is_monthly_payment && (
                           <span className="status-badge" style={{ background: '#10b981', color: 'white', fontSize: '0.75rem' }}>
-                            💰 Pagamento Mensal
+                            Pagamento Mensal
                           </span>
                         )}
                         {order.is_auto_generated && (
                           <span className="status-badge" style={{ background: '#6366f1', color: 'white', fontSize: '0.75rem' }}>
-                            🔄 Mensal
+                            Mensal
                           </span>
                         )}
                       </div>
@@ -350,7 +350,7 @@ function OrdersPage() {
                             }}
                             title="Esta entrega faz parte de uma subscrição mensal. O pagamento foi efetuado através da encomenda de 'Pagamento Mensal'."
                           >
-                            📦 Plano Mensal
+                            Plano Mensal
                           </span>
                         )}
                       </div>
