@@ -1,6 +1,7 @@
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
+from sqlalchemy import extract
 from sqlalchemy.orm import Session
 
 from . import models, schemas
@@ -354,6 +355,232 @@ def delete_recurring_plan(db: Session, plan_id: int) -> bool:
     db.delete(plan)
     db.commit()
     return True
+
+
+def generate_monthly_orders_from_plan(db: Session, plan_id: int, month: int, year: int):
+    """
+    Generate weekly orders for a subscription plan for the specified month.
+    Returns list of created orders.
+    """
+    from calendar import monthrange
+    from datetime import date, timedelta
+    
+    plan = get_recurring_plan(db, plan_id)
+    if not plan or not plan.active:
+        return []
+    
+    # Get the first and last day of the month
+    first_day = date(year, month, 1)
+    last_day_num = monthrange(year, month)[1]
+    last_day = date(year, month, last_day_num)
+    
+    # Check if plan is active for this month
+    if plan.start_date > last_day:
+        return []  # Plan hasn't started yet
+    if plan.end_date and plan.end_date < first_day:
+        return []  # Plan already ended
+    
+    # Find all occurrences of the plan's day_of_week in the month
+    # day_of_week: 0=Monday, 6=Sunday
+    delivery_dates = []
+    current_date = first_day
+    while current_date <= last_day:
+        if current_date.weekday() == plan.day_of_week:
+            # Check if date is within plan period
+            if current_date >= plan.start_date:
+                if not plan.end_date or current_date <= plan.end_date:
+                    delivery_dates.append(current_date)
+        current_date += timedelta(days=1)
+    
+    # Skip the first delivery date (it's the monthly payment order, not a weekly delivery)
+    if delivery_dates:
+        delivery_dates = delivery_dates[1:]  # Remove first occurrence
+    
+    # Get plan items
+    plan_items = db.query(models.RecurringPlanItem).filter(
+        models.RecurringPlanItem.plan_id == plan_id
+    ).all()
+    
+    if not plan_items:
+        return []  # No products in plan
+    
+    # Create orders for each delivery date
+    created_orders = []
+    for delivery_date in delivery_dates:
+        # Check if order already exists for this date and plan
+        existing = db.query(models.Order).filter(
+            models.Order.recurring_plan_id == plan_id,
+            models.Order.delivery_date == delivery_date
+        ).first()
+        
+        if existing:
+            continue  # Skip if already generated
+        
+        # Calculate total
+        total = sum(
+            (db.query(models.Product).get(item.product_id).unit_price or 0) * item.quantity
+            for item in plan_items
+        )
+        
+        # Create order
+        order = models.Order(
+            customer_id=plan.customer_id,
+            delivery_date=delivery_date,
+            status=models.OrderStatus.pago,  # Subscription orders are already paid
+            total=total,
+            recurring_plan_id=plan_id,
+            is_auto_generated=True,
+            notes=f"Gerado automaticamente da subscrição mensal"
+        )
+        db.add(order)
+        db.flush()  # Get order ID
+        
+        # Add order items
+        for plan_item in plan_items:
+            product = db.query(models.Product).get(plan_item.product_id)
+            order_item = models.OrderItem(
+                order_id=order.id,
+                product_id=plan_item.product_id,
+                quantity=plan_item.quantity,
+                unit_price=product.unit_price
+            )
+            db.add(order_item)
+        
+        # Add status history
+        history = models.OrderStatusHistory(
+            order_id=order.id,
+            status=models.OrderStatus.pago  # Subscription orders start as paid
+        )
+        db.add(history)
+        
+        created_orders.append(order)
+    
+    db.commit()
+    for order in created_orders:
+        db.refresh(order)
+    
+    return created_orders
+
+
+def create_monthly_payment_order(db: Session, plan_id: int, month: int, year: int):
+    """
+    Create a monthly payment order for a subscription plan.
+    This is the "master" order that the customer pays to unlock weekly deliveries.
+    Returns the created order or None if plan is invalid or payment already exists.
+    """
+    from calendar import monthrange
+    from datetime import date, timedelta
+    
+    plan = get_recurring_plan(db, plan_id)
+    if not plan or not plan.active:
+        return None
+    
+    # Get the first delivery date of the month (first occurrence of day_of_week)
+    first_day = date(year, month, 1)
+    last_day_num = monthrange(year, month)[1]
+    last_day = date(year, month, last_day_num)
+    
+    # Check if plan is active for this month
+    if plan.start_date > last_day:
+        return None  # Plan hasn't started yet
+    if plan.end_date and plan.end_date < first_day:
+        return None  # Plan already ended
+    
+    # Find first occurrence of plan's day_of_week in the month
+    first_delivery_date = None
+    current_date = first_day
+    while current_date <= last_day:
+        if current_date.weekday() == plan.day_of_week:
+            if current_date >= plan.start_date:
+                if not plan.end_date or current_date <= plan.end_date:
+                    first_delivery_date = current_date
+                    break
+        current_date += timedelta(days=1)
+    
+    if not first_delivery_date:
+        return None  # No valid delivery date in this month
+    
+    # Check if monthly payment already exists for this month
+    existing = db.query(models.Order).filter(
+        models.Order.recurring_plan_id == plan_id,
+        models.Order.is_monthly_payment == True
+    ).filter(
+        extract('month', models.Order.delivery_date) == month,
+        extract('year', models.Order.delivery_date) == year
+    ).first()
+    
+    if existing:
+        return existing  # Already created
+    
+    # Get plan items
+    plan_items = db.query(models.RecurringPlanItem).filter(
+        models.RecurringPlanItem.plan_id == plan_id
+    ).all()
+    
+    if not plan_items:
+        return None  # No products in plan
+    
+    # Calculate monthly total (sum of all weekly deliveries)
+    # Count occurrences of day_of_week in month
+    week_count = 0
+    current_date = first_day
+    while current_date <= last_day:
+        if current_date.weekday() == plan.day_of_week:
+            if current_date >= plan.start_date:
+                if not plan.end_date or current_date <= plan.end_date:
+                    week_count += 1
+        current_date += timedelta(days=1)
+    
+    # Calculate total for all weeks
+    total = sum(
+        (db.query(models.Product).get(item.product_id).unit_price or 0) * item.quantity * week_count
+        for item in plan_items
+    )
+    
+    # Get month name in Portuguese
+    month_names = {
+        1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril',
+        5: 'Maio', 6: 'Junho', 7: 'Julho', 8: 'Agosto',
+        9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'
+    }
+    month_name = month_names.get(month, str(month))
+    
+    # Create monthly payment order
+    order = models.Order(
+        customer_id=plan.customer_id,
+        delivery_date=first_delivery_date,
+        status=models.OrderStatus.encomendado,
+        total=total,
+        recurring_plan_id=plan_id,
+        is_monthly_payment=True,
+        is_auto_generated=False,
+        notes=f"Pagamento Mensal - {month_name} {year} ({week_count} entregas)"
+    )
+    db.add(order)
+    db.flush()
+    
+    # Add order items (total quantities for the month)
+    for plan_item in plan_items:
+        product = db.query(models.Product).get(plan_item.product_id)
+        order_item = models.OrderItem(
+            order_id=order.id,
+            product_id=plan_item.product_id,
+            quantity=plan_item.quantity * week_count,  # Monthly total
+            unit_price=product.unit_price
+        )
+        db.add(order_item)
+    
+    # Add status history
+    history = models.OrderStatusHistory(
+        order_id=order.id,
+        status=models.OrderStatus.encomendado
+    )
+    db.add(history)
+    
+    db.commit()
+    db.refresh(order)
+    
+    return order
 
 
 def update_user(db: Session, user_id: int, user_update: schemas.UserUpdate, hashed_password: Optional[str] = None):

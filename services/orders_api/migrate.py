@@ -96,6 +96,14 @@ def migrate():
                 ADD COLUMN IF NOT EXISTS is_subscription BOOLEAN DEFAULT FALSE NOT NULL;
             """))
             
+            # Add subscription tracking fields to orders
+            conn.execute(text("""
+                ALTER TABLE orders 
+                ADD COLUMN IF NOT EXISTS recurring_plan_id INTEGER REFERENCES recurring_plans(id),
+                ADD COLUMN IF NOT EXISTS is_auto_generated BOOLEAN DEFAULT FALSE NOT NULL,
+                ADD COLUMN IF NOT EXISTS is_monthly_payment BOOLEAN DEFAULT FALSE NOT NULL;
+            """))
+            
             # Note: Enum migration was done manually via SQL
             # The orderstatus enum was recreated with only: encomendado, pago, preparing, delivered
             

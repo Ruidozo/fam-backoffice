@@ -70,10 +70,14 @@ class Order(Base):
     status = Column(Enum(OrderStatus), default=OrderStatus.encomendado, nullable=False)
     total = Column(Numeric(12, 2), default=0)
     notes = Column(Text, nullable=True)
+    recurring_plan_id = Column(Integer, ForeignKey('recurring_plans.id'), nullable=True)  # Link to subscription plan
+    is_auto_generated = Column(Boolean, default=False, nullable=False)  # Auto-generated from subscription
+    is_monthly_payment = Column(Boolean, default=False, nullable=False)  # Monthly payment order (not delivery)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     customer = relationship('Customer', back_populates='orders')
     items = relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
+    recurring_plan = relationship('RecurringPlan', backref='orders')
 
 
 class OrderItem(Base):

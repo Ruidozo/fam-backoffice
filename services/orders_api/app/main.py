@@ -262,6 +262,10 @@ def update_order(order_id: int, o: schemas.OrderCreate, db: Session = Depends(ge
 
 @app.patch('/orders/{order_id}/status', response_model=schemas.OrderRead)
 def update_order_status(order_id: int, payload: schemas.OrderStatusUpdate, db: Session = Depends(get_db)):
+    from datetime import datetime
+
+    from sqlalchemy import extract
+    
     status = payload.status
     # Validate against enum values
     allowed = [s.value for s in models.OrderStatus]
@@ -269,9 +273,40 @@ def update_order_status(order_id: int, payload: schemas.OrderStatusUpdate, db: S
     if status not in allowed:
         print(f"DEBUG: Status '{status}' not in allowed values!")
         raise HTTPException(status_code=400, detail=f'Invalid status: {status}. Allowed: {allowed}')
+    
     order = crud.update_order_status(db, order_id, status)
     if not order:
         raise HTTPException(status_code=404, detail='Order not found')
+    
+    # If marking as "pago" and customer has subscription with recurring plan, generate monthly orders
+    if status == 'pago' and order.customer and order.customer.is_subscription:
+        # Get active recurring plan for this customer
+        active_plan = db.query(models.RecurringPlan).filter(
+            models.RecurringPlan.customer_id == order.customer_id,
+            models.RecurringPlan.active == True
+        ).first()
+        
+        if active_plan and order.delivery_date:
+            # Generate orders for this month if this is the first order of the month
+            month = order.delivery_date.month
+            year = order.delivery_date.year
+            
+            # Check if this is the first order of the month to be marked as paid
+            first_order_of_month = db.query(models.Order).filter(
+                models.Order.customer_id == order.customer_id,
+                models.Order.recurring_plan_id == active_plan.id,
+                models.Order.status == models.OrderStatus.pago,
+                models.Order.id != order_id  # Exclude current order
+            ).filter(
+                extract('month', models.Order.delivery_date) == month,
+                extract('year', models.Order.delivery_date) == year
+            ).first()
+            
+            if not first_order_of_month:
+                # This is the first paid order of the month, generate the rest
+                print(f"Generating monthly orders for plan {active_plan.id}, month {month}/{year}")
+                crud.generate_monthly_orders_from_plan(db, active_plan.id, month, year)
+    
     return order
 
 
@@ -415,4 +450,37 @@ def delete_plan(plan_id: int, db: Session = Depends(get_db)):
     if not ok:
         raise HTTPException(status_code=404, detail='Plan not found')
     return {'message': 'Plan deleted successfully'}
+
+
+@app.post('/recurring/plans/{plan_id}/generate-orders', response_model=List[schemas.OrderRead])
+def generate_orders_from_plan(plan_id: int, month: int, year: int, db: Session = Depends(get_db)):
+    """
+    Generate weekly orders for a subscription plan for the specified month.
+    Example: POST /recurring/plans/1/generate-orders?month=11&year=2025
+    """
+    plan = crud.get_recurring_plan(db, plan_id)
+    if not plan:
+        raise HTTPException(status_code=404, detail='Plan not found')
+    
+    orders = crud.generate_monthly_orders_from_plan(db, plan_id, month, year)
+    return orders
+
+
+@app.post('/recurring/plans/{plan_id}/create-monthly-payment', response_model=schemas.OrderRead)
+def create_monthly_payment(plan_id: int, month: int, year: int, db: Session = Depends(get_db)):
+    """
+    Create a monthly payment order for a subscription plan.
+    This is the "master" order that unlocks weekly deliveries when paid.
+    Example: POST /recurring/plans/1/create-monthly-payment?month=11&year=2025
+    """
+    plan = crud.get_recurring_plan(db, plan_id)
+    if not plan:
+        raise HTTPException(status_code=404, detail='Plan not found')
+    
+    order = crud.create_monthly_payment_order(db, plan_id, month, year)
+    if not order:
+        raise HTTPException(status_code=400, detail='Could not create monthly payment order. Check if plan is valid for this month or payment already exists.')
+    
+    return order
+
 

@@ -65,6 +65,9 @@ class OrderRead(BaseModel):
     status: str
     total: Decimal
     notes: Optional[str] = None
+    recurring_plan_id: Optional[int] = None
+    is_auto_generated: Optional[bool] = False
+    is_monthly_payment: Optional[bool] = False
     items: List[OrderItemRead] = []
     customer: Optional[CustomerRead] = None
     
