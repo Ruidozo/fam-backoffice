@@ -2,6 +2,17 @@
 
 A modern, full-stack backoffice management system for FAM Padaria, built with React, FastAPI, and PostgreSQL.
 
+## Important Notice
+
+**This is a development environment setup.** The repository contains hardcoded credentials and default secrets that are suitable for local development and testing only. 
+
+**DO NOT use this configuration in production environments without:**
+- Changing all default passwords
+- Using strong, unique secret keys
+- Implementing proper environment variable management
+- Enabling HTTPS/SSL
+- Configuring proper security measures
+
 ## Overview
 
 FAM Backoffice is a comprehensive business management platform designed to streamline operations for bakery and food service businesses. The system provides tools for order management, production planning, customer relationship management, and business analytics.
