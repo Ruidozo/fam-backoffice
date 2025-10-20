@@ -86,5 +86,13 @@ export const createUser = (data) => api.post('/users', data)
 export const updateUser = (id, data) => api.put(`/users/${id}`, data)
 export const deleteUser = (id) => api.delete(`/users/${id}`)
 
+// Recurring Plans
+export const getRecurringPlans = (customerId) => api.get(`/recurring/plans`, { params: { customer_id: customerId } })
+export const getRecurringPlan = (id) => api.get(`/recurring/plans/${id}`)
+export const createRecurringPlan = (data) => api.post('/recurring/plans', data)
+export const updateRecurringPlan = (id, data) => api.put(`/recurring/plans/${id}`, data)
+export const deleteRecurringPlan = (id) => api.delete(`/recurring/plans/${id}`)
+export const createMonthlyPayment = (planId, month, year) => api.post(`/recurring/plans/${planId}/create-monthly-payment`, null, { params: { month, year } })
+
 export { authAPI as api }
 export default api

@@ -36,7 +36,7 @@ export default function LoginPage() {
     <div className="login-page">
       <div className="login-container">
         <div className="login-header">
-          <h1>FAM Padaria</h1>
+          <h1>FAM</h1>
           <p>Sistema de Gestão</p>
         </div>
         

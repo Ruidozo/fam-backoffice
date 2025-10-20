@@ -11,13 +11,16 @@
 
 .page-header h1 {
   margin: 0;
-  color: #333;
+  color: #171717;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .users-table-container {
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f0f0;
   overflow: hidden;
 }
 
@@ -27,66 +30,76 @@
 }
 
 .users-table thead {
-  background-color: #f8f9fa;
+  background-color: #fafafa;
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .users-table th {
   padding: 1rem;
   text-align: left;
   font-weight: 600;
-  color: #555;
-  border-bottom: 2px solid #dee2e6;
+  color: #171717;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .users-table td {
   padding: 1rem;
-  border-bottom: 1px solid #dee2e6;
-  color: #333;
+  border-bottom: 1px solid #f5f5f5;
+  color: #171717;
+  font-size: 0.875rem;
 }
 
 .users-table tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: #fafafa;
+}
+
+.users-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .role-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
 }
 
 .role-admin {
-  background-color: #ff6b6b;
+  background-color: #171717;
   color: white;
 }
 
 .role-manager {
-  background-color: #4ecdc4;
+  background-color: #525252;
   color: white;
 }
 
 .role-operator {
-  background-color: #95e1d3;
-  color: #333;
+  background-color: #d4d4d4;
+  color: #171717;
 }
 
 .status-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
 }
 
 .status-badge.active {
-  background-color: #51cf66;
+  background-color: #171717;
   color: white;
 }
 
 .status-badge.inactive {
-  background-color: #adb5bd;
-  color: white;
+  background-color: #e5e5e5;
+  color: #737373;
 }
 
 .actions {
@@ -98,30 +111,33 @@
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .btn-primary {
-  background-color: #667eea;
+  background-color: #171717;
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #5568d3;
+  background-color: #0a0a0a;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-secondary {
-  background-color: #868e96;
-  color: white;
+  background-color: #f5f5f5;
+  color: #171717;
+  border: 1px solid #e5e5e5;
 }
 
 .btn-secondary:hover {
-  background-color: #747b84;
+  background-color: #e5e5e5;
+  border-color: #d4d4d4;
 }
 
 .btn-small {
@@ -130,21 +146,21 @@
 }
 
 .btn-edit {
-  background-color: #4ecdc4;
+  background-color: #525252;
   color: white;
 }
 
 .btn-edit:hover {
-  background-color: #45b8b0;
+  background-color: #404040;
 }
 
 .btn-delete {
-  background-color: #ff6b6b;
+  background-color: #dc2626;
   color: white;
 }
 
 .btn-delete:hover {
-  background-color: #ee5a52;
+  background-color: #b91c1c;
 }
 
 /* Modal styles */
@@ -168,7 +184,7 @@
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .modal-header {
@@ -176,28 +192,31 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .modal-header h2 {
   margin: 0;
-  color: #333;
+  color: #171717;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .close-btn {
   background: none;
   border: none;
   font-size: 2rem;
-  color: #adb5bd;
+  color: #d4d4d4;
   cursor: pointer;
   line-height: 1;
   padding: 0;
   width: 2rem;
   height: 2rem;
+  transition: all 0.15s ease;
 }
 
 .close-btn:hover {
-  color: #495057;
+  color: #171717;
 }
 
 .modal form {
@@ -211,24 +230,27 @@
 .modal .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #495057;
+  font-weight: 600;
+  color: #171717;
+  font-size: 0.875rem;
+  letter-spacing: -0.01em;
 }
 
 .modal .form-group input,
 .modal .form-group select {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ced4da;
+  border: 1px solid #e5e5e5;
   border-radius: 6px;
   font-size: 1rem;
+  transition: all 0.15s ease;
 }
 
 .modal .form-group input:focus,
 .modal .form-group select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #171717;
+  box-shadow: 0 0 0 3px rgba(23, 23, 23, 0.1);
 }
 
 .checkbox-label {
@@ -248,7 +270,7 @@
   justify-content: flex-end;
   gap: 1rem;
   padding: 1.5rem;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid #e5e5e5;
   margin-top: 1rem;
 }
 
@@ -256,5 +278,6 @@
   text-align: center;
   padding: 3rem;
   font-size: 1.2rem;
-  color: #667eea;
+  color: #171717;
+  font-weight: 600;
 }

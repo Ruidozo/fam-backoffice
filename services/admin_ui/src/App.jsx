@@ -38,7 +38,7 @@ function AppLayout() {
     <div className="app">
       <nav className="navbar">
         <div className="nav-brand">
-          <h1>FAM Padaria</h1>
+          <img src="/fam_black.png" alt="FAM" className="nav-logo" />
         </div>
         <ul className="nav-links">
           <li><Link to="/">Encomendas</Link></li>

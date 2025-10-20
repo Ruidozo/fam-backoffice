@@ -328,7 +328,7 @@ function OrdersPage() {
                         )}
                         {order.is_auto_generated && (
                           <span className="status-badge" style={{ background: '#6366f1', color: 'white', fontSize: '0.75rem' }}>
-                            � Auto-gerado
+                            🔄 Mensal
                           </span>
                         )}
                       </div>
@@ -336,11 +336,21 @@ function OrdersPage() {
                     <td>{order.customer?.name || `Cliente #${order.customer_id}`}</td>
                     <td>{order.delivery_date ? format(new Date(order.delivery_date), 'dd/MM/yyyy') : '-'}</td>
                     <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                         <span>€{parseFloat(order.total || 0).toFixed(2)}</span>
                         {parseFloat(order.total || 0) === 0 && order.is_auto_generated && (
-                          <span style={{ fontSize: '0.75rem', color: '#6366f1' }} title="Pagamento coberto pelo plano mensal">
-                            ✓
+                          <span 
+                            className="status-badge" 
+                            style={{ 
+                              background: '#e0f2fe', 
+                              color: '#0369a1', 
+                              fontSize: '0.7rem',
+                              border: '1px solid #bae6fd',
+                              padding: '2px 6px'
+                            }}
+                            title="Esta entrega faz parte de uma subscrição mensal. O pagamento foi efetuado através da encomenda de 'Pagamento Mensal'."
+                          >
+                            📦 Plano Mensal
                           </span>
                         )}
                       </div>

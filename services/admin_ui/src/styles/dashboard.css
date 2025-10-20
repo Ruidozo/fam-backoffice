@@ -14,17 +14,19 @@
 
 .kpi-card {
   background: white;
-  border-radius: 0.5rem;
+  border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f0f0;
   display: flex;
   align-items: center;
   gap: 1rem;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
 }
 
 .kpi-card:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: #e5e5e5;
   transform: translateY(-2px);
 }
 
@@ -38,16 +40,18 @@
 }
 
 .kpi-label {
-  font-size: 0.875rem;
-  color: var(--cocoa-600);
+  font-size: 0.75rem;
+  color: #737373;
   margin-bottom: 0.25rem;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .kpi-value {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--primary);
+  color: #171717;
   line-height: 1.2;
 }
 
@@ -59,16 +63,18 @@
 
 .chart-card {
   background: white;
-  border-radius: 0.5rem;
+  border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f0f0;
 }
 
 .chart-card h3 {
   margin: 0 0 1rem 0;
   font-size: 1.125rem;
-  color: var(--cocoa-900);
-  font-weight: 600;
+  color: #171717;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 /* Responsive adjustments */
