@@ -101,8 +101,21 @@ function KanbanView() {
                             className={`kanban-card ${snapshot.isDragging ? 'dragging' : ''}`}
                           >
                             <div className="kanban-card-header">
-                              <span className="kanban-card-id">#{order.id}</span>
-                              <span className="kanban-card-total">€{parseFloat(order.total || 0).toFixed(2)}</span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <span className="kanban-card-id">#{order.id}</span>
+                                {order.is_monthly_payment && (
+                                  <span style={{ fontSize: '0.85rem' }} title="Pagamento Mensal">💰</span>
+                                )}
+                                {order.is_auto_generated && (
+                                  <span style={{ fontSize: '0.85rem' }} title="Auto-gerado">🔄</span>
+                                )}
+                              </div>
+                              <span className="kanban-card-total">
+                                €{parseFloat(order.total || 0).toFixed(2)}
+                                {parseFloat(order.total || 0) === 0 && order.is_auto_generated && (
+                                  <span style={{ fontSize: '0.75rem', marginLeft: '0.25rem' }} title="Pagamento coberto pelo plano mensal">✓</span>
+                                )}
+                              </span>
                             </div>
                             <div className="kanban-card-customer">
                               {order.customer?.name || `Cliente #${order.customer_id}`}

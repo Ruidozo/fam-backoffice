@@ -318,12 +318,33 @@ function OrdersPage() {
                 return (
                   <tr key={order.id} style={isUrgent ? { background: '#fef3c7' } : {}}>
                     <td>
-                      #{order.id}
-                      {isUrgent && <span style={{ marginLeft: '0.5rem', fontSize: '1.2rem' }}>🔥</span>}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <span>#{order.id}</span>
+                        {isUrgent && <span style={{ fontSize: '1.2rem' }}>🔥</span>}
+                        {order.is_monthly_payment && (
+                          <span className="status-badge" style={{ background: '#10b981', color: 'white', fontSize: '0.75rem' }}>
+                            💰 Pagamento Mensal
+                          </span>
+                        )}
+                        {order.is_auto_generated && (
+                          <span className="status-badge" style={{ background: '#6366f1', color: 'white', fontSize: '0.75rem' }}>
+                            � Auto-gerado
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td>{order.customer?.name || `Cliente #${order.customer_id}`}</td>
                     <td>{order.delivery_date ? format(new Date(order.delivery_date), 'dd/MM/yyyy') : '-'}</td>
-                    <td>€{parseFloat(order.total || 0).toFixed(2)}</td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <span>€{parseFloat(order.total || 0).toFixed(2)}</span>
+                        {parseFloat(order.total || 0) === 0 && order.is_auto_generated && (
+                          <span style={{ fontSize: '0.75rem', color: '#6366f1' }} title="Pagamento coberto pelo plano mensal">
+                            ✓
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td>
                       <select
                         className={`status-badge status-${order.status}`}
